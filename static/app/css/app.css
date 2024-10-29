@@ -5,7 +5,6 @@
  * 抖音号：peng071121
  */
 @import 'jquery.range.css';
-
 body,
 html {
     height: 100%;
@@ -24,42 +23,42 @@ a:hover {
     font-family: 'SF Pro';
     font-style: normal;
     font-weight: 600;
-    src: url(static/app/fonts/sf-pro-text_semibold.woff2) format("woff2")
+    src: url(../fonts/sf-pro-text_semibold.woff2) format("woff2")
 }
 
 @font-face {
     font-family: 'SF Pro';
     font-style: normal;
     font-weight: 500;
-    src: url(static/app/fonts/sf-pro-text_medium.woff2) format("woff2")
+    src: url(../fonts/sf-pro-text_medium.woff2) format("woff2")
 }
 
 @font-face {
     font-family: 'SF Pro';
     font-style: normal;
     font-weight: 400;
-    src: url(static/app/fonts/sf-pro-text_regular.woff2) format("woff2")
+    src: url(../fonts/sf-pro-text_regular.woff2) format("woff2")
 }
 
 @font-face {
     font-family: SansStdRegular;
     font-style: normal;
     font-weight: 400;
-    src: url(static/app/fonts/SansStdRegular.ttf)
+    src: url(../fonts/SansStdRegular.ttf)
 }
 
 @font-face {
     font-family: SansStdMedium;
     font-style: normal;
     font-weight: 400;
-    src: url(static/app/fonts/SansStdMedium.ttf)
+    src: url(../fonts/SansStdMedium.ttf)
 }
 
 @font-face {
     font-family: SansStdBold;
     font-style: normal;
     font-weight: 400;
-    src: url(static/app/fonts/SansStdBold.ttf)
+    src: url(../fonts/SansStdBold.ttf)
 }
 
 .wrapper {
@@ -95,7 +94,7 @@ ul {
 .v-logo i {
     width: 35px;
     height: 35px;
-    background: url(static/app/images/logo.png) no-repeat;
+    background: url(../images/logo.png) no-repeat;
     background-size: 35px;
     margin-left: 7px
 }
@@ -1332,12 +1331,12 @@ fieldset[disabled] .radio-custom label {
 }
 
 #pageHeader {
-    background: #3385ff;
-    color: #fff;
-    font-size: 20px;
-    padding: 10px 0;
-    text-align: center;
-    margin-bottom: 10px;
+	background: #3385ff;
+	color: #fff;
+	font-size: 20px;
+	padding: 10px 0;
+	text-align: center;
+	margin-bottom: 10px;
 }
 
 #pageHeader i {
@@ -1513,41 +1512,41 @@ fieldset[disabled] .radio-custom label {
 .phone-sigle {
     width: 54px;
     height: 36px;
-    background: url(static/app/images/bar/ios-single-4-dark.png) no-repeat;
+    background: url(../images/bar/ios-single-4-dark.png) no-repeat;
     margin-right: 6px;
     text-indent: -9999px
 }
 
 .phone-sigle-v1 {
-    background-image: url(static/app/images/bar/ios-single-1-dark.png)
+    background-image: url(../images/bar/ios-single-1-dark.png)
 }
 
 .phone-sigle-v2 {
-    background-image: url(static/app/images/bar/ios-single-2-dark.png)
+    background-image: url(../images/bar/ios-single-2-dark.png)
 }
 
 .phone-sigle-v3 {
-    background-image: url(static/app/images/bar/ios-single-3-dark.png)
+    background-image: url(../images/bar/ios-single-3-dark.png)
 }
 
 .phone-sigle-v4 {
-    background-image: url(static/app/images/bar/ios-single-4-dark.png)
+    background-image: url(../images/bar/ios-single-4-dark.png)
 }
 
 .phone-wifi {
     width: 63px;
     height: 45px;
-    background: url(static/app/images/bar/ios-wifi-3-dark.png) no-repeat;
+    background: url(../images/bar/ios-wifi-3-dark.png) no-repeat;
     margin-right: 6px;
     text-indent: -9999px
 }
 
 .phone-wifi-s1 {
-    background-image: url(static/app/images/bar/ios-wifi-1-dark.png)
+    background-image: url(../images/bar/ios-wifi-1-dark.png)
 }
 
 .phone-wifi-s2 {
-    background-image: url(static/app/images/bar/ios-wifi-2-dark.png)
+    background-image: url(../images/bar/ios-wifi-2-dark.png)
 }
 
 .phone-wifi-v2 {
@@ -1562,7 +1561,7 @@ fieldset[disabled] .radio-custom label {
 .phone-battery {
     width: 75px;
     height: 36px;
-    background: url(static/app/images/bar/ios-battery-dark.png) no-repeat;
+    background: url(../images/bar/ios-battery-dark.png) no-repeat;
     position: relative;
     padding: 7px;
     padding-right: 16px
@@ -1571,7 +1570,7 @@ fieldset[disabled] .radio-custom label {
 .phone-battery.phone-battery-charge i {
     width: 18px;
     height: 36px;
-    background: url(static/app/images/bar/ios-battery-charge-dark.png) no-repeat;
+    background: url(../images/bar/ios-battery-charge-dark.png) no-repeat;
     position: absolute;
     left: 50%;
     margin-left: -9px;
@@ -1635,7 +1634,7 @@ fieldset[disabled] .radio-custom label {
 .phone-nav-center span i {
     width: 31px;
     height: 42px;
-    background: url(static/app/images/wechat-trans-earphone.png) no-repeat;
+    background: url(../images/wechat-trans-earphone.png) no-repeat;
     margin-left: 15px
 }
 
@@ -1648,14 +1647,14 @@ fieldset[disabled] .radio-custom label {
 .phone-nav-back {
     width: 27px;
     height: 52px;
-    background: url(static/app/images/wechat-nav-back.png) no-repeat;
+    background: url(../images/wechat-nav-back.png) no-repeat;
     text-indent: -9999px
 }
 
 .phone-nav-more {
     width: 70px;
     height: 12px;
-    background: url(static/app/images/wechat-nav-right.png) no-repeat;
+    background: url(../images/wechat-nav-right.png) no-repeat;
     text-indent: -9999px
 }
 
@@ -1675,7 +1674,7 @@ fieldset[disabled] .radio-custom label {
 .phone-bottom-bar i {
     width: 402px;
     height: 15px;
-    background: url(static/app/images/phone-bottom-bar.png) no-repeat;
+    background: url(../images/phone-bottom-bar.png) no-repeat;
     margin-top: 63px;
     text-indent: -9999px
 }
@@ -1692,13 +1691,11 @@ fieldset[disabled] .radio-custom label {
     color: #fff;
     border-radius: 3px;
 }
-
 .btn-recording {
     padding: 5px 20px;
     border-radius: 3px;
     margin-top: 10px;
 }
-
 .wechat-bottom {
     display: flex;
     align-items: center;
@@ -1712,21 +1709,21 @@ fieldset[disabled] .radio-custom label {
 }
 
 .wechat-voice-icon {
-    background: url(static/app/images/wechat-bottom-icon1.png) no-repeat;
+    background: url(../images/wechat-bottom-icon1.png) no-repeat;
     margin-left: 32px
 }
 
 .wechat-emoji-icon {
-    background: url(static/app/images/wechat-bottom-icon2.png) no-repeat
+    background: url(../images/wechat-bottom-icon2.png) no-repeat
 }
 
 .wechat-more-icon {
-    background: url(static/app/images/wechat-bottom-icon3.png) no-repeat;
+    background: url(../images/wechat-bottom-icon3.png) no-repeat;
     margin: 0 32px 0 39px
 }
 
 .wechat-voice-say-icon {
-    background: url(static/app/images/wechat-bottom-icon4.png) no-repeat
+    background: url(../images/wechat-bottom-icon4.png) no-repeat
 }
 
 .wechat-input {
@@ -1756,12 +1753,10 @@ fieldset[disabled] .radio-custom label {
     -webkit-overflow-scrolling: touch;
     overflow-y: scroll
 }
-
 .phone-body::-webkit-scrollbar {
     width: 0;
     height: 0;
 }
-
 .wechat-content {
     padding: 36px
 }
@@ -1931,7 +1926,7 @@ fieldset[disabled] .radio-custom label {
 .wechat-dialog-notice span .wechat-dialog-notice-redp-icon {
     width: 45px;
     height: 51px;
-    background: url(static/app/images/wechat-redp-icon1.png);
+    background: url(../images/wechat-redp-icon1.png);
     margin-right: 18px
 }
 
@@ -1979,21 +1974,21 @@ fieldset[disabled] .radio-custom label {
 .wechat-dialog .wechat-dialog-trans-content i {
     width: 120px;
     height: 120px;
-    background: url(static/app/images/wechat-trans-icon1.png) no-repeat
+    background: url(../images/wechat-trans-icon1.png) no-repeat
 }
 
 .wechat-dialog .wechat-dialog-redp-content i {
     width: 102px;
-    background-image: url(static/app/images/wechat-trans-icon3.png);
+    background-image: url(../images/wechat-trans-icon3.png);
     margin-left: 9px
 }
 
 .wechat-dialog .wechat-dialog-trans-get .wechat-dialog-trans-content i {
-    background-image: url(static/app/images/wechat-trans-icon2.png)
+    background-image: url(../images/wechat-trans-icon2.png)
 }
 
 .wechat-dialog .wechat-dialog-trans-get .wechat-dialog-trans-content.wechat-dialog-redp-content i {
-    background-image: url(static/app/images/wechat-trans-icon4.png)
+    background-image: url(../images/wechat-trans-icon4.png)
 }
 
 .wechat-dialog-trans-content div {
@@ -2069,7 +2064,7 @@ fieldset[disabled] .radio-custom label {
 .wechat-dialog-voice i {
     width: 34px;
     height: 49px;
-    background: url(static/app/images/wechat-voice-icon1.png) no-repeat;
+    background: url(../images/wechat-voice-icon1.png) no-repeat;
     margin-right: 30px;
     margin-left: 16px
 }
@@ -2089,7 +2084,7 @@ fieldset[disabled] .radio-custom label {
 }
 
 .wechat-dialog-right .wechat-dialog-voice i {
-    background-image: url(static/app/images/wechat-voice-icon2.png);
+    background-image: url(../images/wechat-voice-icon2.png);
     margin-left: 30px;
     margin-right: 16px
 }
@@ -2147,7 +2142,7 @@ fieldset[disabled] .radio-custom label {
     height: 60px;
     background: #eee;
     display: block;
-    background: url(static/app/images/logo.png);
+    background: url(../images/logo.png);
     background-size: cover;
     background-position: center
 }
@@ -2233,7 +2228,7 @@ fieldset[disabled] .radio-custom label {
 }
 
 .dialog-user-selected {
-    background-image: url(static/app/images/user-checked.png);
+    background-image: url(../images/user-checked.png);
     background-size: cover
 }
 
@@ -2350,7 +2345,7 @@ a.a-phone-set-bg span {
     height: 100px;
     background: #00d40d;
     border-radius: 10px;
-    background-image: url(static/app/images/icon-wechat.png);
+    background-image: url(../images/icon-wechat.png);
     background-repeat: no-repeat;
     background-size: 60px;
     background-position: center
@@ -2363,7 +2358,7 @@ a.a-phone-set-bg span {
 }
 
 .app-list a i.alipay-chat {
-    background-image: url(static/app/images/icon-alipay-chat.png);
+    background-image: url(../images/icon-alipay-chat.png);
     background-color: #0ae
 }
 
