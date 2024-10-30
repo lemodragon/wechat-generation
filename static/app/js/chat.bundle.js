@@ -4263,13 +4263,13 @@
                 users: [{
                     id: "user-1",
                     name: "悱蕟",
-                    image: "https://i.ibb.co/wWzW35Q/1730194884228.jpg",
+                    image: "./static/app/images/Feifa.jpg",
                     is_me: !0,
                     selected: !0
                 }, {
                     id: "user-2",
                     name: "静静",
-                    image: "https://i.ibb.co/6tFW7mB/3b4cca50c2724ef998469c54dd78e606.jpg"
+                    image: "./static/app/images/Jingjing.jpg",
                 }],
                 dialogs: []
             },
