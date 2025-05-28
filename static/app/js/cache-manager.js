@@ -30,6 +30,15 @@ class CacheManager {
         this.notificationQueue = [];
         this.notificationIdCounter = 0;
 
+        // 恢复状态管理属性 - 防止重复恢复
+        this.recoveryState = {
+            isRecovering: false,
+            hasRecovered: false,
+            recoveryAttempts: 0,
+            maxAttempts: 3,
+            lastRecoveryTime: 0
+        };
+
         // 初始化
         this.init();
     }
@@ -146,19 +155,21 @@ class CacheManager {
     }
 
     /**
-     * 获取Vue应用实例
+     * 获取Vue应用实例 - 增强版，多路径检测
      */
     getVueApp() {
+        // 方法1：使用缓存的Vue应用实例
         if (this.vueApp && this.vueApp.$data) {
             return this.vueApp;
         }
 
+        // 方法2：使用全局window.vueApp
         if (window.vueApp && window.vueApp.$data) {
             this.vueApp = window.vueApp;
             return this.vueApp;
         }
 
-        // 尝试从DOM元素获取Vue实例
+        // 方法3：从DOM元素获取Vue实例
         const vueElement = document.getElementById('vueApp');
         if (vueElement && vueElement.__vue__) {
             this.vueApp = vueElement.__vue__;
@@ -167,13 +178,127 @@ class CacheManager {
             return this.vueApp;
         }
 
+        // 方法4：尝试从Vue构造函数获取活跃实例
+        if (window.Vue && window.Vue.prototype) {
+            // 查找所有Vue实例
+            const allElements = document.querySelectorAll('[id^="vue"], [class*="vue"]');
+            for (let element of allElements) {
+                if (element.__vue__ && element.__vue__.$data) {
+                    this.vueApp = element.__vue__;
+                    window.vueApp = this.vueApp;
+                    console.log('缓存管理器: 从元素查找获取到Vue实例');
+                    return this.vueApp;
+                }
+            }
+        }
+
+        // 方法5：尝试通过Vue根组件获取
+        if (window.Vue && window.Vue.prototype && document.querySelector('[data-server-rendered="true"]')) {
+            const ssrElement = document.querySelector('[data-server-rendered="true"]');
+            if (ssrElement && ssrElement.__vue__) {
+                this.vueApp = ssrElement.__vue__;
+                window.vueApp = this.vueApp;
+                console.log('缓存管理器: 从SSR元素获取到Vue实例');
+                return this.vueApp;
+            }
+        }
+
+        // 方法6：尝试从body的子元素中查找Vue实例
+        const bodyChildren = document.body.children;
+        for (let child of bodyChildren) {
+            if (child.__vue__ && child.__vue__.$data) {
+                this.vueApp = child.__vue__;
+                window.vueApp = this.vueApp;
+                console.log('缓存管理器: 从body子元素获取到Vue实例');
+                return this.vueApp;
+            }
+        }
+
+        console.warn('缓存管理器: 无法找到Vue应用实例');
         return null;
+    }
+
+    /**
+     * 统一恢复入口 - 防止重复恢复操作
+     */
+    performRecovery(source = 'unknown', forceRecover = false) {
+        const now = Date.now();
+
+        // 检查是否正在恢复中
+        if (this.recoveryState.isRecovering && !forceRecover) {
+            console.log(`缓存管理器: 恢复正在进行中，忽略来自 ${source} 的恢复请求`);
+            return false;
+        }
+
+        // 检查是否已经恢复过
+        if (this.recoveryState.hasRecovered && !forceRecover) {
+            console.log(`缓存管理器: 数据已恢复过，忽略来自 ${source} 的恢复请求`);
+            return false;
+        }
+
+        // 检查恢复频率限制（5秒内最多恢复一次）
+        if (now - this.recoveryState.lastRecoveryTime < 5000 && !forceRecover) {
+            console.log(`缓存管理器: 恢复操作过于频繁，忽略来自 ${source} 的恢复请求`);
+            return false;
+        }
+
+        // 检查恢复次数限制
+        if (this.recoveryState.recoveryAttempts >= this.recoveryState.maxAttempts && !forceRecover) {
+            console.log(`缓存管理器: 恢复尝试次数已达上限，忽略来自 ${source} 的恢复请求`);
+            return false;
+        }
+
+        // 检查是否有有效缓存数据
+        if (!this.hasValidCacheData()) {
+            console.log(`缓存管理器: 没有有效的缓存数据，来自 ${source} 的恢复请求取消`);
+            return false;
+        }
+
+        console.log(`缓存管理器: 开始执行来自 ${source} 的数据恢复`);
+
+        // 设置恢复状态
+        this.recoveryState.isRecovering = true;
+        this.recoveryState.recoveryAttempts++;
+        this.recoveryState.lastRecoveryTime = now;
+
+        try {
+            const success = this.forceRestoreToVue(true);
+
+            if (success) {
+                this.recoveryState.hasRecovered = true;
+                console.log(`缓存管理器: 来自 ${source} 的数据恢复成功`);
+
+                // 只在特定来源时显示用户提示
+                if (source === 'crash-recovery') {
+                    this.updateCacheStatus('已恢复上次会话');
+                } else if (source === 'auto-restore') {
+                    this.updateCacheStatus('数据已恢复');
+                    this.showNotification('缓存数据已自动恢复！', 'success');
+                } else if (source === 'import-recovery') {
+                    this.updateCacheStatus('导入数据已恢复');
+                    this.showNotification('导入的数据已成功恢复到界面！', 'success');
+                }
+
+                return true;
+            } else {
+                console.log(`缓存管理器: 来自 ${source} 的数据恢复失败`);
+                return false;
+            }
+        } catch (error) {
+            console.error(`缓存管理器: 来自 ${source} 的数据恢复异常`, error);
+            return false;
+        } finally {
+            // 延迟重置恢复状态，防止短时间内重复触发
+            setTimeout(() => {
+                this.recoveryState.isRecovering = false;
+            }, 1000);
+        }
     }
 
     /**
      * 强制恢复数据到Vue应用
      */
-    forceRestoreToVue() {
+    forceRestoreToVue(silent = false) {
         const app = this.getVueApp();
         if (!app) {
             console.warn('缓存管理器: 无法找到Vue应用实例进行数据恢复');
@@ -223,8 +348,10 @@ class CacheManager {
             }
 
             if (restored) {
-                this.updateCacheStatus('数据已恢复');
-                this.showNotification('缓存数据已恢复到应用！', 'success');
+                if (!silent) {
+                    this.updateCacheStatus('数据已恢复');
+                    this.showNotification('缓存数据已恢复到应用！', 'success');
+                }
 
                 // 强制Vue重新渲染
                 if (app.$forceUpdate) {
@@ -238,7 +365,120 @@ class CacheManager {
             }
         } catch (error) {
             console.error('缓存管理器: 数据恢复失败', error);
-            this.showNotification('数据恢复失败：' + error.message, 'error');
+            if (!silent) {
+                this.showNotification('数据恢复失败：' + error.message, 'error');
+            }
+            return false;
+        }
+    }
+
+    /**
+     * 即时恢复数据 - 专门用于导入后的即时恢复，绕过所有限制
+     */
+    immediateRestore() {
+        console.log('缓存管理器: 开始即时恢复导入的数据');
+
+        // 多种方式尝试获取Vue应用实例
+        let app = this.getVueApp();
+        let attempts = 0;
+        const maxAttempts = 10;
+
+        // 如果第一次没找到，再尝试几次
+        while (!app && attempts < maxAttempts) {
+            attempts++;
+            console.log(`缓存管理器: 第${attempts}次尝试获取Vue应用实例`);
+
+            // 尝试从多个位置获取Vue实例
+            if (window.vueApp && window.vueApp.$data) {
+                app = window.vueApp;
+                this.vueApp = app;
+            } else {
+                const vueElement = document.getElementById('vueApp');
+                if (vueElement && vueElement.__vue__) {
+                    app = vueElement.__vue__;
+                    window.vueApp = app;
+                    this.vueApp = app;
+                }
+            }
+
+            if (!app) {
+                // 短暂等待再尝试
+                const start = Date.now();
+                while (Date.now() - start < 100) {
+                    // 同步等待100ms
+                }
+            }
+        }
+
+        if (!app || !app.$data) {
+            console.error('缓存管理器: 即时恢复失败，无法找到Vue应用实例');
+            return false;
+        }
+
+        try {
+            const setting = this.get(this.keys.setting);
+            const users = this.get(this.keys.users);
+            const dialogs = this.get(this.keys.dialogs);
+
+            console.log('缓存管理器: 即时恢复数据详情', { setting, users, dialogs });
+
+            let restored = false;
+
+            // 恢复设置数据
+            if (setting && typeof setting === 'object') {
+                if (app.$data && app.$data.setting) {
+                    // 完全替换而不是合并，确保导入的数据完整恢复
+                    app.$data.setting = { ...app.$data.setting, ...setting };
+                } else if (app.setting) {
+                    app.setting = { ...app.setting, ...setting };
+                }
+                console.log('缓存管理器: 设置数据即时恢复成功');
+                restored = true;
+            }
+
+            // 恢复用户数据
+            if (users && Array.isArray(users) && users.length > 0) {
+                if (app.$data && app.$data.hasOwnProperty('users')) {
+                    app.$data.users = [...users];
+                } else if (app.hasOwnProperty('users')) {
+                    app.users = [...users];
+                }
+                console.log('缓存管理器: 用户数据即时恢复成功');
+                restored = true;
+            }
+
+            // 恢复对话数据
+            if (dialogs && Array.isArray(dialogs) && dialogs.length > 0) {
+                if (app.$data && app.$data.hasOwnProperty('dialogs')) {
+                    app.$data.dialogs = [...dialogs];
+                } else if (app.hasOwnProperty('dialogs')) {
+                    app.dialogs = [...dialogs];
+                }
+                console.log('缓存管理器: 对话数据即时恢复成功');
+                restored = true;
+            }
+
+            if (restored) {
+                // 强制Vue重新渲染
+                if (app.$forceUpdate) {
+                    app.$forceUpdate();
+                }
+
+                // 触发Vue的响应式更新
+                if (app.$nextTick) {
+                    app.$nextTick(() => {
+                        console.log('缓存管理器: Vue响应式更新完成');
+                    });
+                }
+
+                console.log('缓存管理器: 即时恢复成功');
+                return true;
+            } else {
+                console.log('缓存管理器: 没有有效数据需要即时恢复');
+                return false;
+            }
+        } catch (error) {
+            console.error('缓存管理器: 即时恢复过程中发生错误', error);
             return false;
         }
     }
@@ -323,12 +563,25 @@ class CacheManager {
         console.log('缓存管理器: 检查恢复状态', { meta, hasData });
 
         if (hasData) {
+            // 检查是否是导入数据后的恢复需求
+            if (meta && meta.needsImportRecovery) {
+                console.log('缓存管理器: 检测到导入数据后的恢复需求，开始强制恢复');
+
+                // 清除导入恢复标记
+                meta.needsImportRecovery = false;
+                localStorage.setItem(this.keys.meta, JSON.stringify(meta));
+
+                // 强制恢复导入的数据
+                this.waitForVueAndForceRestore();
+                return;
+            }
+
             // 有数据，等待Vue应用加载完成后恢复
             this.waitForVueAndRestore();
         }
 
+        // 异常退出的情况单独处理，只显示提示不直接恢复
         if (meta && !meta.normalExit && hasData) {
-            // 异常退出且有数据，显示恢复提示
             setTimeout(() => {
                 this.showRecoveryDialog();
             }, 2000);
@@ -347,8 +600,8 @@ class CacheManager {
             const app = this.getVueApp();
 
             if (app && app.$data) {
-                console.log('缓存管理器: Vue应用已加载，开始自动恢复数据');
-                this.forceRestoreToVue();
+                console.log('缓存管理器: Vue应用已加载，尝试自动恢复数据');
+                this.performRecovery('auto-restore');
             } else if (attempts < maxAttempts) {
                 setTimeout(checkAndRestore, 100);
             } else {
@@ -358,6 +611,32 @@ class CacheManager {
 
         // 延迟开始检查，确保页面已加载
         setTimeout(checkAndRestore, 500);
+    }
+
+    /**
+     * 等待Vue应用加载并强制恢复导入的数据
+     */
+    waitForVueAndForceRestore() {
+        let attempts = 0;
+        const maxAttempts = 100; // 10秒最大等待时间
+
+        const checkAndForceRestore = () => {
+            attempts++;
+            const app = this.getVueApp();
+
+            if (app && app.$data) {
+                console.log('缓存管理器: Vue应用已加载，开始强制恢复导入的数据');
+                // 使用forceRecover=true参数绕过所有限制条件
+                this.performRecovery('import-recovery', true);
+            } else if (attempts < maxAttempts) {
+                setTimeout(checkAndForceRestore, 100);
+            } else {
+                console.warn('缓存管理器: 等待Vue应用超时，无法强制恢复导入的数据');
+            }
+        };
+
+        // 延迟开始检查，确保页面已加载
+        setTimeout(checkAndForceRestore, 500);
     }
 
     /**
@@ -374,17 +653,20 @@ class CacheManager {
     }
 
     /**
-     * 显示数据恢复对话框 - 改为静默恢复，避免打断用户操作
+     * 显示数据恢复对话框 - 优化版，减少提示干扰
      */
     showRecoveryDialog() {
         const hasData = this.hasValidCacheData();
 
-        if (hasData) {
+        if (hasData && !this.recoveryState.hasRecovered) {
             // 静默恢复数据，不显示浏览器确认对话框
             console.log('缓存管理器: 检测到异常退出，开始静默恢复数据');
-            this.forceRestoreToVue();
-            this.updateCacheStatus('已恢复上次会话');
-            this.showNotification('检测到异常退出，已自动恢复您的聊天记录！', 'success');
+            const success = this.performRecovery('crash-recovery');
+
+            if (success) {
+                // 只显示异常退出恢复的提示
+                this.showNotification('检测到异常退出，已自动恢复您的聊天记录！', 'success');
+            }
         }
     }
 
@@ -695,16 +977,28 @@ class CacheManager {
                     if (data.dialogs) imported &= this.set(this.keys.dialogs, data.dialogs);
 
                     if (imported) {
-                        this.updateCacheStatus('数据已导入');
-                        this.showNotification('数据导入成功！需要刷新页面以生效。', 'success');
+                        this.updateCacheStatus('数据导入中...');
+                        console.log('缓存管理器: 数据导入到localStorage成功，开始即时恢复');
 
+                        // 立即恢复数据到Vue应用，无需刷新页面
                         setTimeout(() => {
-                            if (confirm('数据导入成功！是否刷新页面以应用新数据？')) {
-                                window.location.reload();
+                            const restoreSuccess = this.immediateRestore();
+                            if (restoreSuccess) {
+                                this.updateCacheStatus('导入完成');
+                                this.showNotification('数据导入成功！已立即应用到界面。', 'success');
+                                resolve(true);
+                            } else {
+                                // 如果即时恢复失败，提供刷新选项
+                                this.updateCacheStatus('导入成功，需要刷新');
+                                this.showNotification('数据导入成功！需要刷新页面查看效果。', 'info');
+                                setTimeout(() => {
+                                    if (confirm('数据已导入成功！是否刷新页面以确保完全生效？')) {
+                                        window.location.reload();
+                                    }
+                                }, 1000);
+                                resolve(true);
                             }
-                        }, 1000);
-
-                        resolve(true);
+                        }, 500);
                     } else {
                         this.showNotification('数据导入失败：存储错误', 'error');
                         reject(new Error('存储错误'));

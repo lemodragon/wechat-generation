@@ -180,11 +180,44 @@
                 text-align: center;
             }
         }
+
+        /* Vue.js 模板闪烁防护样式 */
+        [v-cloak] {
+            display: none !important;
+        }
+
+        /* 加载状态样式 */
+        .vue-loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 200px;
+            font-size: 16px;
+            color: #6c757d;
+        }
+
+        .vue-loading::before {
+            content: "⏳";
+            margin-right: 8px;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
     </style>
 </head>
 
 <body>
-    <div id="vueApp" class="wrapper">
+    <div id="vueApp" class="wrapper" v-cloak>
         <div class="container-fluid page-content" style="margin-top: 10px;">
             <div role="alert" class="alert alert-warning" style="color: red;">
                 声明：本站功能仅供娱乐，正式场合请勿使用，<b>严禁用于违法行为</b>，否则后果自负！
@@ -205,7 +238,9 @@
                     <button class="cache-btn" onclick="window.cacheManager.exportData()"
                         title="导出数据为JSON文件">导出数据</button>
                     <div class="file-input-wrapper">
-                        <button class="cache-btn" title="从JSON文件导入数据">导入数据</button>
+                        <button class="cache-btn"
+                            onclick="document.querySelector('.file-input-wrapper input[type=file]').click()"
+                            title="从JSON文件导入数据">导入数据</button>
                         <input type="file" accept=".json" onchange="handleImport(this)">
                     </div>
                     <button class="cache-btn secondary" onclick="showCacheStats()" title="查看详细的缓存统计信息">缓存统计</button>
@@ -312,28 +347,6 @@
                             <div class="dialog-user">
                                 <div class="dialog-user-title">编辑和选择用户（<font>第一个用户默认是自己，点击头像可更换头像哦</font>）</div>
                                 <div class="dialog-user-items">
-                                    <div class="dialog-user-item el-remove">
-                                        <div class="dialog-user-face">
-                                            <a class="dialog-user-face-a" href="javascript:;">
-                                                <input type="file" placeholder="点击更换头像">
-                                                <i></i>
-                                            </a>
-                                            <input type="text" value="微信对话生成器" />
-                                            <a class="dialog-user-select">选择用户</a>
-                                            <a class="dialog-user-delete">x</a>
-                                        </div>
-                                    </div>
-                                    <div class="dialog-user-item el-remove">
-                                        <div class="dialog-user-face">
-                                            <a class="dialog-user-face-a" href="javascript:;">
-                                                <input type="file" placeholder="点击更换头像">
-                                                <i style="background-image: url(/static/app/images/user-face.png)"></i>
-                                            </a>
-                                            <input type="text" value="悱蕟" />
-                                            <a class="dialog-user-select">选择用户</a>
-                                            <a class="dialog-user-delete">x</a>
-                                        </div>
-                                    </div>
                                     <div v-for="(user, index) in users" class="dialog-user-item">
                                         <div class="dialog-user-face">
                                             <a class="dialog-user-face-a" href="javascript:;">
@@ -593,157 +606,6 @@
                                             </div>
                                         </div>
                                     </template>
-
-                                    <div class="wechat-dialog el-remove">
-                                        <div class="wechat-dialog-notice">
-                                            <span class="wechat-dialog-notice-has-bg">2019年5月20日 下午4:20</span>
-                                        </div>
-                                        <a class="a-wechat-dialog-del" href="javascript:;" title="删除对话">X</a>
-                                    </div>
-                                    <div class="wechat-dialog wechat-dialog-right el-remove">
-                                        <div class="wechat-dialog-face">
-                                            <img src="static/app/images/user-face.png" />
-                                        </div>
-                                        <div class="wechat-dialog-text wechat-dialog-voice">
-                                            <span>1"</span><i></i>
-                                        </div>
-                                        <a class="a-wechat-dialog-del" href="javascript:;" title="删除对话">X</a>
-                                    </div>
-                                    <div class="wechat-dialog el-remove">
-                                        <div class="wechat-dialog-face">
-                                            <img src="static/app/images/user-face.png" />
-                                        </div>
-                                        <div class="wechat-dialog-text wechat-dialog-voice">
-                                            <i></i><span>1"</span><em></em>
-                                        </div>
-                                        <a class="a-wechat-dialog-del" href="javascript:;" title="删除对话">X</a>
-                                    </div>
-                                    <div class="wechat-dialog wechat-dialog-right el-remove">
-                                        <div class="wechat-dialog-face">
-                                            <img src="static/app/images/user-face.png" />
-                                        </div>
-                                        <div class="wechat-dialog-text wechat-dialog-image"><img
-                                                src="static/app/images/dialog-demo1.jpeg"></div>
-                                        <a class="a-wechat-dialog-del" href="javascript:;" title="删除对话">X</a>
-                                    </div>
-                                    <div class="wechat-dialog wechat-dialog-right el-remove">
-                                        <div class="wechat-dialog-face">
-                                            <img src="static/app/images/user-face.png" />
-                                        </div>
-                                        <div class="wechat-dialog-text">
-                                            hellohelhellohellohellohellohellohellolohello</div>
-                                        <a class="a-wechat-dialog-del" href="javascript:;" title="删除对话">X</a>
-                                    </div>
-                                    <div class="wechat-dialog el-remove">
-                                        <div class="wechat-dialog-face">
-                                            <img src="static/app/images/user-face.png" />
-                                        </div>
-                                        <div class="wechat-dialog-text wechat-dialog-trans">
-                                            <div class="wechat-dialog-trans-content">
-                                                <i></i>
-                                                <div>
-                                                    <span>¥1.00</span>
-                                                    <font>转账给微截图</font>
-                                                </div>
-                                            </div>
-                                            <div class="wechat-dialog-trans-bottom">
-                                                <span>微信转账</span>
-                                            </div>
-                                        </div>
-                                        <a class="a-wechat-dialog-del" href="javascript:;" title="删除对话">X</a>
-                                        <div class="a-wechat-dialog-menu">
-                                            <a>领取</a>
-                                        </div>
-                                    </div>
-                                    <div class="wechat-dialog el-remove">
-                                        <div class="wechat-dialog-face">
-                                            <img src="static/app/images/user-face.png" />
-                                        </div>
-                                        <div class="wechat-dialog-text wechat-dialog-trans wechat-dialog-trans-get">
-                                            <div class="wechat-dialog-trans-content">
-                                                <i></i>
-                                                <div>
-                                                    <span>¥1.00</span>
-                                                    <font>转账给微截图</font>
-                                                </div>
-                                            </div>
-                                            <div class="wechat-dialog-trans-bottom">
-                                                <span>微信转账</span>
-                                            </div>
-                                        </div>
-                                        <a class="a-wechat-dialog-del" href="javascript:;" title="删除对话">X</a>
-                                    </div>
-                                    <div class="wechat-dialog wechat-dialog-right el-remove">
-                                        <div class="wechat-dialog-face">
-                                            <img src="static/app/images/user-face.png" />
-                                        </div>
-                                        <div class="wechat-dialog-text wechat-dialog-trans">
-                                            <div class="wechat-dialog-trans-content">
-                                                <i></i>
-                                                <div>
-                                                    <span>¥1.00</span>
-                                                    <font>转账给微截图</font>
-                                                </div>
-                                            </div>
-                                            <div class="wechat-dialog-trans-bottom">
-                                                <span>微信转账</span>
-                                            </div>
-                                        </div>
-                                        <a class="a-wechat-dialog-del" href="javascript:;" title="删除对话">X</a>
-                                    </div>
-                                    <div class="wechat-dialog wechat-dialog-right el-remove">
-                                        <div class="wechat-dialog-face">
-                                            <img src="static/app/images/user-face.png" />
-                                        </div>
-                                        <div class="wechat-dialog-text wechat-dialog-trans wechat-dialog-trans-get">
-                                            <div class="wechat-dialog-trans-content">
-                                                <i></i>
-                                                <div>
-                                                    <span>¥1.00</span>
-                                                    <font>转账给微截图</font>
-                                                </div>
-                                            </div>
-                                            <div class="wechat-dialog-trans-bottom">
-                                                <span>微信转账</span>
-                                            </div>
-                                        </div>
-                                        <a class="a-wechat-dialog-del" href="javascript:;" title="删除对话">X</a>
-                                    </div>
-
-                                    <div class="wechat-dialog el-remove">
-                                        <div class="wechat-dialog-face">
-                                            <img src="static/app/images/user-face.png" />
-                                        </div>
-                                        <div class="wechat-dialog-text wechat-dialog-trans">
-                                            <div class="wechat-dialog-trans-content wechat-dialog-redp-content">
-                                                <i></i>
-                                                <div>
-                                                    <span>恭喜发财，大吉大利</span>
-                                                </div>
-                                            </div>
-                                            <div class="wechat-dialog-trans-bottom">
-                                                <span>微信红包</span>
-                                            </div>
-                                        </div>
-                                        <a class="a-wechat-dialog-del" href="javascript:;" title="删除对话">X</a>
-                                    </div>
-                                    <div class="wechat-dialog wechat-dialog-right el-remove">
-                                        <div class="wechat-dialog-face">
-                                            <img src="static/app/images/user-face.png" />
-                                        </div>
-                                        <div class="wechat-dialog-text wechat-dialog-trans wechat-dialog-trans-get">
-                                            <div class="wechat-dialog-trans-content wechat-dialog-redp-content">
-                                                <i></i>
-                                                <div>
-                                                    <span>恭喜发财，大吉大利</span>
-                                                </div>
-                                            </div>
-                                            <div class="wechat-dialog-trans-bottom">
-                                                <span>微信红包</span>
-                                            </div>
-                                        </div>
-                                        <a class="a-wechat-dialog-del" href="javascript:;" title="删除对话">X</a>
-                                    </div>
                                 </div>
                             </div>
 
@@ -787,10 +649,20 @@
         function handleImport(input) {
             const file = input.files[0];
             if (file) {
+                // 显示导入开始提示
+                if (window.cacheManager) {
+                    window.cacheManager.updateCacheStatus('开始导入数据...');
+                    window.cacheManager.showNotification('正在读取文件，请稍候...', 'info');
+                }
+
                 window.cacheManager.importData(file).then(() => {
                     console.log('数据导入成功');
                 }).catch((error) => {
                     console.error('数据导入失败:', error);
+                    if (window.cacheManager) {
+                        window.cacheManager.updateCacheStatus('导入失败');
+                        window.cacheManager.showNotification('数据导入失败：' + error.message, 'error');
+                    }
                 });
                 input.value = ''; // 清空输入，允许重复选择同一文件
             }

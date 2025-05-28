@@ -261,14 +261,6 @@
             window.cacheManager.saveAll();
         });
 
-        // 等待一段时间后尝试恢复数据
-        setTimeout(() => {
-            console.log('Vue缓存集成: 尝试恢复缓存数据');
-            if (window.cacheManager.hasValidCacheData()) {
-                window.cacheManager.forceRestoreToVue();
-            }
-        }, 1000);
-
         // 初始化完成提示
         console.log('Vue缓存集成: 初始化完成');
 
@@ -288,16 +280,5 @@
         console.log('Vue缓存集成: DOM已加载，等待依赖项');
         waitForDependencies(enhanceVueApp);
     }
-
-    // 额外的监听器确保数据恢复
-    window.addEventListener('load', () => {
-        console.log('Vue缓存集成: 页面完全加载，进行最后检查');
-        setTimeout(() => {
-            if (window.cacheManager && window.cacheManager.hasValidCacheData()) {
-                console.log('Vue缓存集成: 发现缓存数据，尝试最终恢复');
-                window.cacheManager.forceRestoreToVue();
-            }
-        }, 2000);
-    });
 
 })(); 
