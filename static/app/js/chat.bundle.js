@@ -4356,7 +4356,7 @@
                     var A = this.getSelectedUser();
                     if (!A) return alert("请选择用户"), !1;
                     if (!this.setting.dialog_money) return alert("请输入金额"), !1;
-                    var e = "转账给你",
+                    var e = "请收款",
                         t = (A.is_me && (e = "转账给" + ((t = this.getOtherUser()) ? t.name : "马克")), this.setting.dialog_trans_remark && (e = this.setting.dialog_trans_remark), {
                             id: "dialog-" + (new Date).valueOf(),
                             type: "transfer",
