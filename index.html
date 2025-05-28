@@ -10,6 +10,8 @@
         content="免费在线微信对话生成器，微信对话生成器，微信朋友圈生成器，微信转账生成器，微信对话生成器无水印,无水印,微信对话生成器,红包聊天,微信聊天在线生成器,微信对话生成器在线,微信对话在线制作,微信截图生成器,微信对话框生成器" />
     <meta name="description"
         content="在线微信对话生成器是一款在线微信聊天对话制作的工具，免费在线制作微信对话生成器和转账，可以生成无水印微信转账、微信聊天、微信红包、聊天记录等截图，通过简单的设置，生成你想要的截图，是进行各种段子创作及装X的热门工具。" />
+    <meta name="author" content="追风少年">
+    <meta name="version" content="1.1.0">
     <link rel="shortcut icon" type="image/vnd.microsoft.icon" href="favicon.ico" />
     <script type="text/javascript">
         var _path = { images: '' }
@@ -26,6 +28,10 @@
     <!-- gif -->
     <script src="./static/app/js/gif.js"></script>
     <script src="./static/app/js/gif.worker.js"></script>
+    <!-- 添加Sortable.js库 -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <!-- 引入消息编辑与排序功能 -->
+    <script src="./static/app/js/message-editor.js"></script>
 
     <!-- 缓存管理样式 -->
     <style>
@@ -529,7 +535,7 @@
                             <div class="phone-water"></div>
 
                             <div class="phone-body">
-                                <div class="wechat-content">
+                                <div class="wechat-content" id="sortableList">
                                     <template v-for="(dialog, index) in dialogs">
                                         <div :class="['wechat-dialog', {'wechat-dialog-right':dialog.is_me}]">
                                             <div v-if="dialog.type != 'notice'" class="wechat-dialog-face">
@@ -537,7 +543,19 @@
                                             </div>
 
                                             <template v-if="dialog.type == 'text'">
-                                                <div class="wechat-dialog-text">{{dialog.content}}</div>
+                                                <div class="wechat-dialog-text" v-if="!dialog.isEditing">
+                                                    {{dialog.content}}</div>
+                                                <div class="wechat-dialog-text wechat-dialog-editing"
+                                                    v-if="dialog.isEditing">
+                                                    <textarea v-model="dialog.editContent"
+                                                        class="edit-message-textarea"></textarea>
+                                                    <div class="edit-message-actions">
+                                                        <button @click="saveEditedDialog(index)"
+                                                            class="btn-edit-save">保存</button>
+                                                        <button @click="cancelEditDialog(index)"
+                                                            class="btn-edit-cancel">取消</button>
+                                                    </div>
+                                                </div>
                                             </template>
 
                                             <template v-if="dialog.type == 'image'">
@@ -595,6 +613,10 @@
 
                                             <a @click="deleteDialog(index)" class="a-wechat-dialog-del"
                                                 href="javascript:;" title="删除对话">X</a>
+
+                                            <a v-if="dialog.type == 'text' && !dialog.isEditing"
+                                                @click="editDialog(index)" class="a-wechat-dialog-edit"
+                                                href="javascript:;" title="编辑对话">✎</a>
 
                                             <div v-if="!dialog.is_get && dialog.type == 'redpacket'"
                                                 class="a-wechat-dialog-menu">

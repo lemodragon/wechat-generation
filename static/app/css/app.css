@@ -5,6 +5,7 @@
  * 抖音号：peng071121
  */
 @import 'jquery.range.css';
+
 body,
 html {
     height: 100%;
@@ -1086,11 +1087,6 @@ fieldset[disabled] .radio-custom label {
     margin-left: -24px
 }
 
-.checkbox-lg label::after {
-    font-size: 14px;
-    line-height: 24px
-}
-
 .checkbox-lg input[type=radio],
 .checkbox-lg input[type=checkbox] {
     width: 24px;
@@ -1331,12 +1327,12 @@ fieldset[disabled] .radio-custom label {
 }
 
 #pageHeader {
-	background: #3385ff;
-	color: #fff;
-	font-size: 20px;
-	padding: 10px 0;
-	text-align: center;
-	margin-bottom: 10px;
+    background: #3385ff;
+    color: #fff;
+    font-size: 20px;
+    padding: 10px 0;
+    text-align: center;
+    margin-bottom: 10px;
 }
 
 #pageHeader i {
@@ -1691,11 +1687,13 @@ fieldset[disabled] .radio-custom label {
     color: #fff;
     border-radius: 3px;
 }
+
 .btn-recording {
     padding: 5px 20px;
     border-radius: 3px;
     margin-top: 10px;
 }
+
 .wechat-bottom {
     display: flex;
     align-items: center;
@@ -1753,10 +1751,12 @@ fieldset[disabled] .radio-custom label {
     -webkit-overflow-scrolling: touch;
     overflow-y: scroll
 }
+
 .phone-body::-webkit-scrollbar {
     width: 0;
     height: 0;
 }
+
 .wechat-content {
     padding: 36px
 }
@@ -1860,6 +1860,71 @@ fieldset[disabled] .radio-custom label {
     display: none
 }
 
+.a-wechat-dialog-edit,
+.a-wechat-dialog-edit:focus,
+.a-wechat-dialog-edit:hover {
+    width: 60px;
+    height: 60px;
+    background: #3385ff;
+    border-radius: 30px;
+    display: block;
+    position: absolute;
+    color: #fff;
+    line-height: 60px;
+    text-align: center;
+    font-size: 30px;
+    right: 90px;
+    top: 30px;
+    display: none
+}
+
+.wechat-dialog-right .a-wechat-dialog-edit {
+    left: 90px;
+    right: auto;
+}
+
+.wechat-dialog:hover .a-wechat-dialog-edit {
+    display: block
+}
+
+.wechat-dialog-editing {
+    padding: 10px !important;
+}
+
+.edit-message-textarea {
+    width: 100%;
+    min-height: 80px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 5px;
+    font-size: 32px;
+    margin-bottom: 10px;
+}
+
+.edit-message-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.btn-edit-save,
+.btn-edit-cancel {
+    padding: 5px 10px;
+    margin-left: 10px;
+    border: none;
+    border-radius: 3px;
+    color: white;
+    cursor: pointer;
+    font-size: 28px;
+}
+
+.btn-edit-save {
+    background-color: #3385ff;
+}
+
+.btn-edit-cancel {
+    background-color: #999;
+}
+
 .a-wechat-dialog-menu {
     display: flex;
     position: absolute;
@@ -1893,19 +1958,6 @@ fieldset[disabled] .radio-custom label {
     border-right: 1px rgba(163, 175, 183, .9) solid;
     position: relative;
     z-index: 99999
-}
-
-.wechat-dialog-right .a-wechat-dialog-del {
-    right: 90px;
-    left: auto
-}
-
-.wechat-dialog:hover .a-wechat-dialog-del {
-    display: block
-}
-
-.wechat-dialog:hover .a-wechat-dialog-menu {
-    display: flex
 }
 
 .wechat-dialog-notice span {
@@ -2278,6 +2330,176 @@ textarea.edit-dialog-text {
     opacity: .3
 }
 
+/* 自定义拖拽样式 - 用于解决transform scale问题 */
+.sortable-ghost-custom {
+    opacity: 0.3 !important;
+    background-color: #f8f9fa !important;
+    transform: none !important;
+    box-shadow: none !important;
+    border: 2px dashed #ccc !important;
+    position: relative !important;
+    z-index: 100 !important;
+    border-radius: 8px !important;
+    min-height: 100px !important;
+}
+
+/* 为不同类型的对话添加不同的占位符指示 */
+.sortable-ghost-custom.wechat-dialog-right {
+    background-color: rgba(157, 234, 144, 0.15) !important;
+    border: 2px dashed #9dea90 !important;
+}
+
+.sortable-ghost-custom:not(.wechat-dialog-right) {
+    background-color: rgba(151, 210, 240, 0.15) !important;
+    border: 2px dashed #97d2f0 !important;
+}
+
+.sortable-drag-custom {
+    opacity: 0.8 !important;
+    transform: none !important;
+    z-index: 9999 !important;
+    pointer-events: none !important;
+    max-width: 700px !important;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3) !important;
+    border-radius: 8px !important;
+}
+
+.sortable-fallback-custom {
+    position: absolute !important;
+    opacity: 0.9 !important;
+    width: auto !important;
+    height: auto !important;
+    transform: none !important;
+    z-index: 9999 !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+    background-color: #fff !important;
+    pointer-events: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    max-width: 250px !important;
+    border-radius: 8px !important;
+    transition: transform 0.1s ease !important;
+}
+
+/* 右侧对话（自己发送的）拖拽时的特殊样式 */
+.sortable-fallback-custom.wechat-dialog-right {
+    border-left: 3px solid #9dea90 !important;
+}
+
+/* 左侧对话（他人发送的）拖拽时的特殊样式 */
+.sortable-fallback-custom:not(.wechat-dialog-right) {
+    border-left: 3px solid #97d2f0 !important;
+}
+
+/* 在拖拽状态下隐藏编辑按钮等功能 */
+.sortable-fallback-custom .a-wechat-dialog-edit,
+.sortable-fallback-custom .a-wechat-dialog-del,
+.sortable-fallback-custom .a-wechat-dialog-menu {
+    display: none !important;
+}
+
+/* 给拖拽目标位置添加一个明显的指示器 */
+.sortable-chosen {
+    background-color: rgba(51, 133, 255, 0.15) !important;
+    box-shadow: inset 0 0 0 2px rgba(51, 133, 255, 0.5) !important;
+    transition: all 0.2s ease !important;
+    position: relative !important;
+    z-index: 50 !important;
+}
+
+/* 右侧对话被选中时的特殊样式 */
+.sortable-chosen.wechat-dialog-right {
+    background-color: rgba(157, 234, 144, 0.2) !important;
+    box-shadow: inset 0 0 0 2px rgba(157, 234, 144, 0.6) !important;
+}
+
+/* 左侧对话被选中时的特殊样式 */
+.sortable-chosen:not(.wechat-dialog-right) {
+    background-color: rgba(151, 210, 240, 0.2) !important;
+    box-shadow: inset 0 0 0 2px rgba(151, 210, 240, 0.6) !important;
+}
+
+/* 增加可排序列表的辅助样式 */
+#sortableList {
+    position: relative;
+    min-height: 50px;
+}
+
+/* 为不同布局类型的对话添加不同的拖拽提示指示器 */
+/* 左侧对话（他人发送的）的拖拽指示器 */
+#sortableList>.wechat-dialog:not(.wechat-dialog-right):hover::before {
+    content: "≡";
+    position: absolute;
+    left: -20px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #97d2f0;
+    font-size: 16px;
+    z-index: 10;
+    background-color: rgba(255, 255, 255, 0.8);
+    width: 20px;
+    height: 20px;
+    line-height: 20px;
+    text-align: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* 右侧对话（自己发送的）的拖拽指示器 */
+#sortableList>.wechat-dialog-right:hover::before {
+    content: "≡";
+    position: absolute;
+    right: -20px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9dea90;
+    font-size: 16px;
+    z-index: 10;
+    background-color: rgba(255, 255, 255, 0.8);
+    width: 20px;
+    height: 20px;
+    line-height: 20px;
+    text-align: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* 在拖拽过程中添加插入点指示器 */
+.sortable-ghost-custom::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background-color: #3385ff;
+    bottom: -4px;
+    z-index: 1000;
+}
+
+/* 防止拖拽时触发文本选择 */
+#sortableList,
+#sortableList>.wechat-dialog,
+#sortableList>.wechat-dialog *,
+.sortable-fallback-custom,
+.sortable-fallback-custom * {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* 编辑时允许文本选择 */
+.wechat-dialog-editing,
+.wechat-dialog-editing *,
+.edit-message-textarea {
+    -webkit-user-select: text !important;
+    -moz-user-select: text !important;
+    -ms-user-select: text !important;
+    user-select: text !important;
+}
+
 a.a-phone-set-bg,
 a.a-phone-set-bg:active,
 a.a-phone-set-bg:focus {
@@ -2426,4 +2648,17 @@ a.a-phone-set-bg span {
         margin-right: 0;
         width: 33.333%
     }
+}
+
+.wechat-dialog-right .a-wechat-dialog-del {
+    right: 90px;
+    left: auto
+}
+
+.wechat-dialog:hover .a-wechat-dialog-del {
+    display: block
+}
+
+.wechat-dialog:hover .a-wechat-dialog-menu {
+    display: flex
 }
