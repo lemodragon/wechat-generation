@@ -19,11 +19,168 @@
     <link rel="stylesheet" href="static/app/css/app.css">
     <link rel="stylesheet" href="static/app/css/wallet.css">
     <script type="text/javascript" src="static/app/js/common.bundle.js"></script>
+    <script type="text/javascript" src="static/app/js/cache-manager.js"></script>
     <script type="text/javascript" src="static/app/js/chat.bundle.js"></script>
+    <script type="text/javascript" src="static/app/js/vue-cache-integration.js"></script>
     <script src="static/app/js/html2canvas.min.js"></script>
     <!-- gif -->
     <script src="./static/app/js/gif.js"></script>
     <script src="./static/app/js/gif.worker.js"></script>
+
+    <!-- 缓存管理样式 -->
+    <style>
+        .cache-controls {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .cache-status-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding: 10px 15px;
+            background: #fff;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+        }
+
+        .cache-status-indicator {
+            color: #28a745;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .cache-status-label {
+            font-size: 13px;
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .cache-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .cache-btn {
+            padding: 6px 12px;
+            font-size: 12px;
+            border: 1px solid #007bff;
+            background: #007bff;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            min-width: 70px;
+            text-align: center;
+        }
+
+        .cache-btn:hover {
+            background: #0056b3;
+            border-color: #0056b3;
+            color: white;
+            text-decoration: none;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 123, 255, 0.25);
+        }
+
+        .cache-btn.secondary {
+            background: #6c757d;
+            border-color: #6c757d;
+        }
+
+        .cache-btn.secondary:hover {
+            background: #545b62;
+            border-color: #545b62;
+            box-shadow: 0 2px 4px rgba(108, 117, 125, 0.25);
+        }
+
+        .cache-btn.danger {
+            background: #dc3545;
+            border-color: #dc3545;
+        }
+
+        .cache-btn.danger:hover {
+            background: #c82333;
+            border-color: #c82333;
+            box-shadow: 0 2px 4px rgba(220, 53, 69, 0.25);
+        }
+
+        .cache-btn.success {
+            background: #28a745;
+            border-color: #28a745;
+        }
+
+        .cache-btn.success:hover {
+            background: #218838;
+            border-color: #218838;
+            box-shadow: 0 2px 4px rgba(40, 167, 69, 0.25);
+        }
+
+        .cache-stats {
+            font-size: 11px;
+            color: #6c757d;
+            margin-top: 10px;
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            border-left: 3px solid #007bff;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .cache-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #495057;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+        }
+
+        .cache-title::before {
+            content: "💾";
+            margin-right: 6px;
+        }
+
+        @media (max-width: 768px) {
+            .cache-controls {
+                padding: 12px;
+            }
+
+            .cache-buttons {
+                gap: 8px;
+            }
+
+            .cache-btn {
+                font-size: 11px;
+                padding: 5px 10px;
+                min-width: 60px;
+            }
+
+            .cache-status-bar {
+                flex-direction: column;
+                gap: 8px;
+                text-align: center;
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -32,6 +189,30 @@
             <div role="alert" class="alert alert-warning" style="color: red;">
                 声明：本站功能仅供娱乐，正式场合请勿使用，<b>严禁用于违法行为</b>，否则后果自负！
                 <br>友情提示：请使用【谷歌浏览器】操作，以便获得最好的操作体验。
+            </div>
+            <!-- 缓存管理区域 -->
+            <div class="cache-controls">
+                <div class="cache-title">智能缓存管理</div>
+                <div class="cache-status-bar">
+                    <span class="cache-status-label">缓存状态：</span>
+                    <span id="cache-status" class="cache-status-indicator">初始化中...</span>
+                </div>
+                <div class="cache-buttons">
+                    <button class="cache-btn success" onclick="window.cacheManager.saveAll()"
+                        title="立即保存所有数据">手动保存</button>
+                    <button class="cache-btn" onclick="window.cacheManager.createBackup()"
+                        title="创建带时间戳的备份">创建备份</button>
+                    <button class="cache-btn" onclick="window.cacheManager.exportData()"
+                        title="导出数据为JSON文件">导出数据</button>
+                    <div class="file-input-wrapper">
+                        <button class="cache-btn" title="从JSON文件导入数据">导入数据</button>
+                        <input type="file" accept=".json" onchange="handleImport(this)">
+                    </div>
+                    <button class="cache-btn secondary" onclick="showCacheStats()" title="查看详细的缓存统计信息">缓存统计</button>
+                    <button class="cache-btn danger" onclick="window.cacheManager.clearAll()"
+                        title="清空所有缓存数据（谨慎使用）">清空缓存</button>
+                </div>
+                <div id="cache-stats" class="cache-stats" style="display: none;"></div>
             </div>
             <!--<div id="pageHeader">微信对话生成器</div>-->
             <div class="edit-content">
@@ -597,6 +778,103 @@
     </div>
     <a style="display: none;" id="lightBoxToggle" href="javascript:;" data-width="300"
         data-caption="右击图片，点击图片另存为即可下载图片">生成图片</a>
+
+    <!-- 缓存管理脚本 -->
+    <script>
+        /**
+         * 处理文件导入
+         */
+        function handleImport(input) {
+            const file = input.files[0];
+            if (file) {
+                window.cacheManager.importData(file).then(() => {
+                    console.log('数据导入成功');
+                }).catch((error) => {
+                    console.error('数据导入失败:', error);
+                });
+                input.value = ''; // 清空输入，允许重复选择同一文件
+            }
+        }
+
+        /**
+         * 显示/隐藏缓存统计信息
+         */
+        function showCacheStats() {
+            const statsElement = document.getElementById('cache-stats');
+            const isVisible = statsElement.style.display !== 'none';
+
+            if (isVisible) {
+                statsElement.style.display = 'none';
+            } else {
+                const stats = window.cacheManager.getCacheStats();
+                statsElement.innerHTML = `
+                    <strong>📊 缓存统计信息</strong><br>
+                    • 设置缓存: ${stats.setting ? '✅ 已保存' : '❌ 未保存'}<br>
+                    • 用户数量: ${stats.users} 个<br>
+                    • 对话数量: ${stats.dialogs} 条<br>
+                    • 备份数量: ${stats.backupCount} 个<br>
+                    • 最后保存: ${stats.lastSave || '未知'}
+                `;
+                statsElement.style.display = 'block';
+            }
+        }
+
+        /**
+         * 页面加载后的初始化
+         */
+        document.addEventListener('DOMContentLoaded', function () {
+            // 等待缓存管理器初始化完成
+            setTimeout(() => {
+                if (window.cacheManager) {
+                    // 显示初始统计信息
+                    showCacheStats();
+                    setTimeout(() => {
+                        document.getElementById('cache-stats').style.display = 'none';
+                    }, 3000);
+
+                    // 初始化状态显示
+                    window.cacheManager.updateCacheStatus('缓存系统已就绪');
+                }
+            }, 1500);
+        });
+
+        /**
+         * 扩展Vue应用以集成缓存管理器
+         */
+        document.addEventListener('DOMContentLoaded', function () {
+            setTimeout(function () {
+                if (window.vueApp && window.cacheManager) {
+                    // 保存Vue应用实例的引用以便缓存管理器访问
+                    window.cacheManager.vueApp = window.vueApp;
+                    console.log('Vue应用与缓存管理器集成完成');
+                }
+            }, 2000);
+        });
+
+        /**
+         * 全局错误处理
+         */
+        window.addEventListener('error', function (event) {
+            console.error('页面错误:', event.error);
+            if (window.cacheManager) {
+                window.cacheManager.updateCacheStatus('发生错误，已自动保存');
+                window.cacheManager.saveAll();
+            }
+        });
+
+        /**
+         * 页面可见性变化处理
+         */
+        document.addEventListener('visibilitychange', function () {
+            if (window.cacheManager) {
+                if (document.hidden) {
+                    window.cacheManager.updateCacheStatus('页面隐藏，已保存');
+                } else {
+                    window.cacheManager.updateCacheStatus('页面激活，缓存正常');
+                }
+            }
+        });
+    </script>
 </body>
 
 </html>
