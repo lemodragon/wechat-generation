@@ -1,9 +1,3 @@
-/*!
- * project：在线微信聊天生成器，抖音微信聊天搞笑视频制作神器
- * author：追风少年
- * 开源地址：https://gitee.com/lifeixue/weixin-chat
- * 抖音号：peng071121
- */
 @import 'jquery.range.css';
 
 body,
@@ -2660,5 +2654,51 @@ a.a-phone-set-bg span {
 }
 
 .wechat-dialog:hover .a-wechat-dialog-menu {
-    display: flex
+    display: block;
+}
+
+/* 拉黑按钮样式 */
+.a-wechat-dialog-block {
+    position: absolute;
+    top: 30px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    background: #ff5722;
+    border-radius: 30px;
+    display: none;
+    cursor: pointer;
+    z-index: 9;
+    color: #fff;
+    line-height: 60px;
+    text-align: center;
+}
+
+.wechat-dialog-right .a-wechat-dialog-block {
+    left: 20px;
+    right: auto;
+}
+
+.a-wechat-dialog-block img {
+    width: 30px;
+    height: 30px;
+    vertical-align: middle;
+}
+
+.wechat-dialog:hover .a-wechat-dialog-block {
+    display: block;
+}
+
+/* 拉黑图标样式 */
+.wechat-block-icon {
+    display: inline-block;
+    width: 60px;
+    height: 60px;
+    background: url(../images/wechat-block.png) no-repeat;
+    background-size: contain;
+    position: absolute;
+    /* left位置完全由JavaScript控制 */
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
 }

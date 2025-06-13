@@ -16,6 +16,32 @@
     <script type="text/javascript">
         var _path = { images: '' }
         var page = { data: {} }
+
+        // 添加空的GIF对象防止Vue报错
+        window.GIF = function () {
+            return {
+                addFrame: function () { },
+                render: function () { },
+                on: function () { }
+            };
+        };
+
+        // 彻底阻止GIF相关错误
+        window.addEventListener('error', function (e) {
+            if (e.filename && (e.filename.includes('gif') || e.filename.includes('sm.bundle'))) {
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            }
+        }, true);
+
+        // 阻止未处理的Promise拒绝
+        window.addEventListener('unhandledrejection', function (e) {
+            if (e.reason && e.reason.toString().includes('gif')) {
+                e.preventDefault();
+                return false;
+            }
+        });
     </script>
     <link rel="stylesheet" href="static/app/css/zui.min.css">
     <link rel="stylesheet" href="static/app/css/app.css">
@@ -26,12 +52,14 @@
     <script type="text/javascript" src="static/app/js/vue-cache-integration.js"></script>
     <script src="static/app/js/html2canvas.min.js"></script>
     <!-- gif -->
-    <script src="./static/app/js/gif.js"></script>
-    <script src="./static/app/js/gif.worker.js"></script>
+    <!-- <script src="./static/app/js/gif.js"></script>
+    <script src="./static/app/js/gif.worker.js"></script> -->
     <!-- 添加Sortable.js库 -->
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <!-- 引入消息编辑与排序功能 -->
     <script src="./static/app/js/message-editor.js"></script>
+    <!-- 引入拉黑功能 -->
+    <script src="./static/app/js/block-message.js"></script>
 
     <!-- 缓存管理样式 -->
     <style>
@@ -414,6 +442,7 @@
                                                 <option value="">-</option>
                                                 <option value="上午">上午</option>
                                                 <option value="下午">下午</option>
+                                                <option value="晚上">晚上</option>
                                                 <option value="凌晨">凌晨</option>
                                             </select>
                                             <select v-model="setting.date_hour"
@@ -465,7 +494,7 @@
                                     </div>
                                     <button class="btn-clear" @click="cleanDialogs" href="javascript:;">清空聊天内容</button>
                                     <button class="btn-clear" @click="save" href="javascript:;">生成图片</button>
-                                    <button class="btn-clear" id="downGif">生成GIF</button>
+                                    <!-- <button class="btn-clear" id="downGif">生成GIF</button> -->
                                     <div style="margin-top: 20px;">
                                         <p>生成视频功能: 点击下方的"开始录制"按钮即可录制视频（停止录制后会在右侧生成视频，您可以下载该视频）</p>
                                         <p>生成GIF图片: 点击下方的"开始录制"按钮即可生成动态图片（停止录制后点击上方的"生成GIF"按钮下载GIF图片）</p>
@@ -543,8 +572,10 @@
                                             </div>
 
                                             <template v-if="dialog.type == 'text'">
+                                                <i v-if="dialog.is_blocked" class="wechat-block-icon"></i>
                                                 <div class="wechat-dialog-text" v-if="!dialog.isEditing">
-                                                    {{dialog.content}}</div>
+                                                    {{dialog.content}}
+                                                </div>
                                                 <div class="wechat-dialog-text wechat-dialog-editing"
                                                     v-if="dialog.isEditing">
                                                     <textarea v-model="dialog.editContent"
@@ -559,6 +590,7 @@
                                             </template>
 
                                             <template v-if="dialog.type == 'image'">
+                                                <i v-if="dialog.is_blocked" class="wechat-block-icon"></i>
                                                 <div
                                                     :class="['wechat-dialog-text', 'wechat-dialog-image', {'wechat-dialog-image-noborder':setting.background != ''}]">
                                                     <img :src="dialog.image">
@@ -617,6 +649,12 @@
                                             <a v-if="dialog.type == 'text' && !dialog.isEditing"
                                                 @click="editDialog(index)" class="a-wechat-dialog-edit"
                                                 href="javascript:;" title="编辑对话">✎</a>
+
+                                            <a v-if="dialog.is_me && !dialog.is_blocked && (dialog.type == 'text' || dialog.type == 'image')"
+                                                @click="blockDialog(index)" class="a-wechat-dialog-block"
+                                                href="javascript:;" title="拉黑该消息">
+                                                <img src="./static/app/images/wechat-block.png" alt="拉黑">
+                                            </a>
 
                                             <div v-if="!dialog.is_get && dialog.type == 'redpacket'"
                                                 class="a-wechat-dialog-menu">
@@ -748,12 +786,48 @@
         /**
          * 全局错误处理
          */
+        let errorHandlingInProgress = false;
+        let errorDebounceTimer = null;
+
         window.addEventListener('error', function (event) {
-            console.error('页面错误:', event.error);
-            if (window.cacheManager) {
-                window.cacheManager.updateCacheStatus('发生错误，已自动保存');
-                window.cacheManager.saveAll();
+            // 如果正在处理错误，忽略
+            if (errorHandlingInProgress) {
+                return;
             }
+
+            // 过滤GIF、录制、Worker相关的错误
+            if (event.filename && (
+                event.filename.includes('gif.worker.js') ||
+                event.filename.includes('sm.bundle.js') ||
+                event.filename.includes('gif.js') ||
+                event.filename.includes('recorder')
+            )) {
+                return;
+            }
+
+            // 过滤特定的错误消息
+            if (event.error && event.error.message && (
+                event.error.message.includes('charCodeAt') ||
+                event.error.message.includes('postMessage') ||
+                event.error.message.includes('renderFrame')
+            )) {
+                return;
+            }
+
+            // 防抖处理，避免频繁触发
+            if (errorDebounceTimer) {
+                clearTimeout(errorDebounceTimer);
+            }
+
+            errorDebounceTimer = setTimeout(() => {
+                errorHandlingInProgress = true;
+                console.error('页面错误:', event.error);
+                if (window.cacheManager) {
+                    window.cacheManager.updateCacheStatus('发生错误，已自动保存');
+                    window.cacheManager.saveAll();
+                }
+                errorHandlingInProgress = false;
+            }, 2000); // 增加到2秒防抖
         });
 
         /**
