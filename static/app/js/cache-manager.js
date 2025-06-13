@@ -49,8 +49,8 @@ class CacheManager {
     init() {
         console.log('缓存管理器开始初始化...');
 
-        // 检查是否有异常退出的数据需要恢复
-        this.checkForRecovery();
+        // 不在初始化时自动检查恢复，等待Vue实例准备好后由Vue缓存集成脚本触发
+        console.log('缓存管理器: 跳过自动恢复检查，等待Vue实例准备完成');
 
         // 监听页面可见性变化
         document.addEventListener('visibilitychange', () => {
@@ -158,23 +158,35 @@ class CacheManager {
      * 获取Vue应用实例 - 增强版，多路径检测
      */
     getVueApp() {
+        // 检查Vue实例是否完整可用的辅助函数
+        const isVueInstanceReady = (instance) => {
+            return instance &&
+                instance.$data &&
+                instance.$data.hasOwnProperty('dialogs') &&
+                instance.$data.hasOwnProperty('users') &&
+                instance.$data.hasOwnProperty('setting') &&
+                Array.isArray(instance.$data.dialogs) &&
+                Array.isArray(instance.$data.users) &&
+                typeof instance.$data.setting === 'object';
+        };
+
         // 方法1：使用缓存的Vue应用实例
-        if (this.vueApp && this.vueApp.$data) {
+        if (isVueInstanceReady(this.vueApp)) {
             return this.vueApp;
         }
 
         // 方法2：使用全局window.vueApp
-        if (window.vueApp && window.vueApp.$data) {
+        if (isVueInstanceReady(window.vueApp)) {
             this.vueApp = window.vueApp;
             return this.vueApp;
         }
 
         // 方法3：从DOM元素获取Vue实例
         const vueElement = document.getElementById('vueApp');
-        if (vueElement && vueElement.__vue__) {
+        if (vueElement && isVueInstanceReady(vueElement.__vue__)) {
             this.vueApp = vueElement.__vue__;
             window.vueApp = this.vueApp;
-            console.log('缓存管理器: 从DOM获取到Vue实例');
+            console.log('缓存管理器: 从DOM获取到完整的Vue实例');
             return this.vueApp;
         }
 
@@ -183,10 +195,10 @@ class CacheManager {
             // 查找所有Vue实例
             const allElements = document.querySelectorAll('[id^="vue"], [class*="vue"]');
             for (let element of allElements) {
-                if (element.__vue__ && element.__vue__.$data) {
+                if (isVueInstanceReady(element.__vue__)) {
                     this.vueApp = element.__vue__;
                     window.vueApp = this.vueApp;
-                    console.log('缓存管理器: 从元素查找获取到Vue实例');
+                    console.log('缓存管理器: 从元素查找获取到完整的Vue实例');
                     return this.vueApp;
                 }
             }
@@ -211,6 +223,34 @@ class CacheManager {
                 window.vueApp = this.vueApp;
                 console.log('缓存管理器: 从body子元素获取到Vue实例');
                 return this.vueApp;
+            }
+        }
+
+        // 方法7：尝试从所有含有__vue__属性的元素中查找
+        const allVueElements = document.querySelectorAll('*');
+        for (let element of allVueElements) {
+            if (element.__vue__ && element.__vue__.$data &&
+                element.__vue__.$data.dialogs !== undefined &&
+                element.__vue__.$data.users !== undefined) {
+                this.vueApp = element.__vue__;
+                window.vueApp = this.vueApp;
+                console.log('缓存管理器: 从全局元素扫描获取到Vue实例');
+                return this.vueApp;
+            }
+        }
+
+        // 方法8：尝试从Vue开发者工具中获取
+        if (window.__VUE_DEVTOOLS_GLOBAL_HOOK__ && window.__VUE_DEVTOOLS_GLOBAL_HOOK__.Vue) {
+            const vueInstances = window.__VUE_DEVTOOLS_GLOBAL_HOOK__.Vue._installedPlugins;
+            if (vueInstances && vueInstances.length > 0) {
+                for (let plugin of vueInstances) {
+                    if (plugin && plugin.$data) {
+                        this.vueApp = plugin;
+                        window.vueApp = this.vueApp;
+                        console.log('缓存管理器: 从Vue开发者工具获取到Vue实例');
+                        return this.vueApp;
+                    }
+                }
             }
         }
 

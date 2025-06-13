@@ -58,12 +58,30 @@ function addEditMethods() {
         if (window.cacheManager) {
             window.cacheManager.set('wechat_dialogs', this.dialogs);
         }
+
+        // 调整图标位置（因为消息高度可能发生变化）
+        this.$nextTick(() => {
+            setTimeout(() => {
+                if (window.adjustAllIconPositions) {
+                    window.adjustAllIconPositions();
+                }
+            }, 100);
+        });
     };
 
     // 添加取消编辑方法
     vueApp.cancelEditDialog = function (index) {
         // 取消编辑，恢复原内容
         this.$set(this.dialogs[index], 'isEditing', false);
+
+        // 调整图标位置
+        this.$nextTick(() => {
+            setTimeout(() => {
+                if (window.adjustAllIconPositions) {
+                    window.adjustAllIconPositions();
+                }
+            }, 100);
+        });
     };
 
     // 添加通过base64数据直接添加图片对话的方法
@@ -295,4 +313,59 @@ function setupEmojiButtons() {
     });
 
     console.log('Emoji按钮事件绑定完成');
-} 
+}
+
+/**
+ * 调整编辑图标位置，与拉黑图标垂直对齐但不重叠
+ */
+function adjustEditIconPosition() {
+    const editIcons = document.querySelectorAll('.a-wechat-dialog-edit');
+
+    editIcons.forEach((editIcon) => {
+        const dialog = editIcon.closest('.wechat-dialog');
+        if (!dialog) return;
+
+        const textBubble = dialog.querySelector('.wechat-dialog-text');
+        const blockIcon = dialog.querySelector('.wechat-block-icon');
+
+        if (!textBubble) return;
+
+        const textBubbleHeight = textBubble.offsetHeight;
+        const isLongText = textBubbleHeight > 150; // 判断是否为长文本
+
+        if (blockIcon) {
+            // 如果有拉黑图标，编辑图标在拉黑图标左边
+            const blockIconLeft = parseInt(blockIcon.style.left) || 0;
+            const blockIconTop = parseInt(blockIcon.style.top) || 0;
+
+            // 编辑图标在拉黑图标左边70px（图标宽度60px + 间距10px）
+            const editIconLeft = blockIconLeft - 70;
+
+            // 切换到left定位，确保位置准确
+            editIcon.style.position = 'absolute';
+            editIcon.style.left = editIconLeft + 'px';
+            editIcon.style.right = 'auto'; // 清除right定位
+            editIcon.style.top = blockIconTop + 'px'; // 与拉黑图标同一水平线
+
+            console.log(`编辑图标在拉黑图标左边，left=${editIconLeft}px, top=${blockIconTop}px`);
+        } else {
+            // 无拉黑图标时恢复默认的right定位
+            editIcon.style.position = 'absolute';
+            editIcon.style.left = 'auto'; // 清除left定位
+            editIcon.style.right = '90px'; // 恢复默认right位置
+
+            if (isLongText) {
+                // 长文本：移到气泡顶部
+                editIcon.style.top = '10px';
+                console.log('长文本消息，编辑图标移到顶部');
+            } else {
+                // 短文本：恢复默认位置
+                editIcon.style.top = '30px';
+                console.log('恢复编辑图标默认位置');
+            }
+        }
+    });
+}
+
+// 暴露函数到全局，方便其他脚本调用
+window.adjustEditIconPosition = adjustEditIconPosition; 

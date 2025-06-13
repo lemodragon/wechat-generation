@@ -44,9 +44,24 @@
     // 暴露到全局方便调试
     window.adjustBlockIconPosition = adjustBlockIconPosition;
 
+    // 扩展函数：同时调整拉黑图标和编辑图标位置
+    function adjustAllIconPositions() {
+        adjustBlockIconPosition();
+
+        // 调用编辑图标位置调整函数（如果存在）
+        if (window.adjustEditIconPosition) {
+            setTimeout(() => {
+                window.adjustEditIconPosition();
+            }, 50); // 短暂延迟确保拉黑图标位置已确定
+        }
+    }
+
+    // 暴露组合调整函数
+    window.adjustAllIconPositions = adjustAllIconPositions;
+
     // 测试函数
     window.testBlockIcon = function () {
-        adjustBlockIconPosition();
+        adjustAllIconPositions();
     };
 
     // 监听图片生成事件
@@ -119,7 +134,7 @@
                 // 延迟调整图标位置，确保DOM更新完成
                 this.$nextTick(() => {
                     setTimeout(() => {
-                        adjustBlockIconPosition();
+                        adjustAllIconPositions(); // 使用组合调整函数
                         // 滚动到底部
                         const phoneBody = document.querySelector(".phone-body");
                         if (phoneBody) {
@@ -190,7 +205,7 @@
             };
 
             // 监听窗口大小变化
-            window.addEventListener('resize', adjustBlockIconPosition);
+            window.addEventListener('resize', adjustAllIconPositions);
 
             // 监听内容变化
             const observer = new MutationObserver(function (mutations) {
@@ -202,7 +217,7 @@
                     }
                 });
                 if (shouldAdjust) {
-                    setTimeout(adjustBlockIconPosition, 200);
+                    setTimeout(adjustAllIconPositions, 200); // 使用组合调整函数
                 }
             });
 
@@ -216,7 +231,7 @@
             }
 
             // 初始调整
-            setTimeout(adjustBlockIconPosition, 1000);
+            setTimeout(adjustAllIconPositions, 1000);
 
             console.log('拉黑功能已成功加载');
         }, 1000);

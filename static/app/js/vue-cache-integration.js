@@ -69,9 +69,23 @@
             vueCheckAttempts++;
             console.log(`Vue缓存集成: 检查Vue实例 (尝试 ${vueCheckAttempts}/${maxVueAttempts})`);
 
-            if (vueElement.__vue__) {
-                console.log('Vue缓存集成: 找到Vue实例，开始增强');
-                enhanceVueInstance(vueElement.__vue__);
+            const vueInstance = vueElement.__vue__;
+
+            // 检查Vue实例是否存在且数据结构完整
+            if (vueInstance && vueInstance.$data &&
+                vueInstance.$data.hasOwnProperty('dialogs') &&
+                vueInstance.$data.hasOwnProperty('users') &&
+                vueInstance.$data.hasOwnProperty('setting')) {
+
+                console.log('Vue缓存集成: 找到完整的Vue实例，数据结构已准备好');
+                enhanceVueInstance(vueInstance);
+            } else if (vueInstance) {
+                console.log('Vue缓存集成: Vue实例存在但数据结构未完全准备好，继续等待...');
+                if (vueCheckAttempts < maxVueAttempts) {
+                    setTimeout(checkForVueInstance, 200);
+                } else {
+                    console.warn('Vue缓存集成: Vue实例数据结构准备超时');
+                }
             } else if (vueCheckAttempts < maxVueAttempts) {
                 setTimeout(checkForVueInstance, 200);
             } else {
@@ -268,6 +282,43 @@
         setTimeout(() => {
             window.cacheManager.updateCacheStatus('缓存增强已启用');
         }, 1500);
+
+        // Vue实例增强完成后，等待Vue完全初始化再恢复缓存数据
+        console.log('Vue缓存集成: Vue实例增强完成，等待Vue完全初始化后恢复缓存数据');
+
+        // 使用多重检查确保Vue实例完全准备好
+        const triggerCacheRecovery = () => {
+            // 检查Vue实例的关键数据是否已初始化
+            if (vueApp.$data &&
+                Array.isArray(vueApp.$data.dialogs) &&
+                Array.isArray(vueApp.$data.users) &&
+                typeof vueApp.$data.setting === 'object') {
+
+                console.log('Vue缓存集成: Vue实例数据结构确认完整，触发缓存恢复');
+
+                // 额外延迟确保Vue的所有初始化完成
+                setTimeout(() => {
+                    window.cacheManager.checkForRecovery();
+                }, 500);
+            } else {
+                console.log('Vue缓存集成: Vue实例数据结构未完全初始化，延迟重试');
+                setTimeout(triggerCacheRecovery, 300);
+            }
+        };
+
+        // 使用nextTick确保Vue实例完全准备好
+        if (vueApp.$nextTick) {
+            vueApp.$nextTick(() => {
+                console.log('Vue缓存集成: Vue nextTick完成，检查数据结构');
+                triggerCacheRecovery();
+            });
+        } else {
+            // 如果没有nextTick，延迟后触发
+            setTimeout(() => {
+                console.log('Vue缓存集成: 延迟触发数据结构检查');
+                triggerCacheRecovery();
+            }, 300);
+        }
     }
 
     // 等待依赖项加载完成后执行
@@ -280,5 +331,38 @@
         console.log('Vue缓存集成: DOM已加载，等待依赖项');
         waitForDependencies(enhanceVueApp);
     }
+
+    // 添加最后保险机制：页面完全加载后尝试恢复缓存
+    window.addEventListener('load', () => {
+        console.log('Vue缓存集成: 页面完全加载，启动保险缓存恢复机制');
+
+        // 延迟5秒后检查是否已经恢复过数据，如果没有则强制恢复
+        setTimeout(() => {
+            if (window.cacheManager && !window.cacheManager.recoveryState.hasRecovered) {
+                console.log('Vue缓存集成: 检测到数据未恢复，启动保险恢复机制');
+
+                // 检查Vue实例是否真正准备好
+                const vueInstance = window.cacheManager.getVueApp();
+                if (vueInstance && window.cacheManager.hasValidCacheData()) {
+                    console.log('Vue缓存集成: Vue实例已准备好，发现有效缓存数据，强制执行恢复');
+                    window.cacheManager.performRecovery('fallback-recovery', true);
+                } else if (!vueInstance) {
+                    console.log('Vue缓存集成: Vue实例仍未准备好，保险机制延迟执行');
+
+                    // 再次延迟尝试
+                    setTimeout(() => {
+                        const vueInstance2 = window.cacheManager.getVueApp();
+                        if (vueInstance2 && window.cacheManager.hasValidCacheData() &&
+                            !window.cacheManager.recoveryState.hasRecovered) {
+                            console.log('Vue缓存集成: 第二次保险恢复尝试');
+                            window.cacheManager.performRecovery('final-fallback-recovery', true);
+                        }
+                    }, 3000);
+                }
+            } else {
+                console.log('Vue缓存集成: 数据已恢复或无有效缓存，保险机制无需执行');
+            }
+        }, 5000);
+    });
 
 })(); 

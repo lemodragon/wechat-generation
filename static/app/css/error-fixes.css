@@ -1,0 +1,118 @@
+/**
+ * 项目错误修复样式
+ * 解决字体文件缺失和样式问题
+ */
+
+/* 隐藏可能使用ZenIcon字体但现在显示异常的元素 */
+[class*="icon-"]:before,
+.icon:before {
+    /* 为缺失的图标字体提供默认样式 */
+    font-family: Arial, sans-serif;
+    font-style: normal;
+    font-weight: normal;
+    text-decoration: none;
+}
+
+/* 提供常用图标的替代字符 */
+.icon-ok:before,
+.icon-check:before {
+    content: "✓";
+}
+
+.icon-remove:before,
+.icon-times:before {
+    content: "×";
+}
+
+.icon-plus:before {
+    content: "+";
+}
+
+.icon-minus:before {
+    content: "−";
+}
+
+.icon-chevron-left:before {
+    content: "‹";
+}
+
+.icon-chevron-right:before {
+    content: "›";
+}
+
+.icon-arrow-left:before {
+    content: "←";
+}
+
+.icon-arrow-right:before {
+    content: "→";
+}
+
+.icon-arrow-up:before {
+    content: "↑";
+}
+
+.icon-arrow-down:before {
+    content: "↓";
+}
+
+.icon-home:before {
+    content: "🏠";
+}
+
+.icon-search:before {
+    content: "🔍";
+}
+
+.icon-edit:before {
+    content: "✏️";
+}
+
+.icon-trash:before {
+    content: "🗑️";
+}
+
+.icon-cog:before {
+    content: "⚙️";
+}
+
+/* 确保即使字体缺失，布局也保持正常 */
+[class*="icon-"],
+.icon {
+    display: inline-block;
+    min-width: 1em;
+    text-align: center;
+    line-height: 1;
+}
+
+/* 为可能出现问题的组件提供fallback样式 */
+.checkbox-custom input[type=checkbox]:checked+label::after,
+.checkbox-custom input[type=radio]:checked+label::after {
+    /* 确保勾选标记正常显示 */
+    font-size: 14px;
+    line-height: 20px;
+    text-align: center;
+}
+
+/* 抑制可能的控制台错误提示样式 */
+body {
+    /* 确保页面在字体加载失败时仍然可读 */
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* 为可能缺失资源的元素提供优雅降级 */
+img {
+    /* 当图片加载失败时的样式 */
+    background-color: #f8f9fa;
+    border: 1px dashed #dee2e6;
+}
+
+img:after {
+    /* 图片加载失败时显示的内容 */
+    content: attr(alt);
+    display: block;
+    padding: 10px;
+    text-align: center;
+    color: #6c757d;
+    font-size: 12px;
+}

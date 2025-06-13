@@ -894,8 +894,9 @@ fieldset[disabled] .radio-custom label {
 .checkbox-custom input[type=radio]:checked+label::after,
 .checkbox-custom input[type=checkbox]:checked+input[type=hidden]+label::after,
 .checkbox-custom input[type=checkbox]:checked+label::after {
-    font-family: ZenIcon;
-    content: "\e60d"
+    /* 替换字体图标为CSS符号，避免404错误 */
+    font-family: inherit;
+    content: "✓"
 }
 
 .checkbox-custom input[type=radio]:disabled,
@@ -1869,7 +1870,8 @@ fieldset[disabled] .radio-custom label {
     font-size: 30px;
     right: 90px;
     top: 30px;
-    display: none
+    display: none;
+    z-index: 8;
 }
 
 .wechat-dialog-right .a-wechat-dialog-edit {
@@ -2957,10 +2959,10 @@ a.a-phone-set-bg span {
 /* 内联emoji样式 */
 .inline-emoji {
     display: inline-block;
-    width: 60px;
-    height: 60px;
+    width: 80px;
+    height: 80px;
     vertical-align: middle;
-    margin: 0 6px;
+    margin: 0 8px;
 }
 
 /* 响应式适配 */
