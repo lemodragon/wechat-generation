@@ -25,6 +25,9 @@ function initMessageEditor() {
     initSortable();
 
     console.log('消息编辑与排序功能初始化完成');
+
+    // 初始化emoji功能
+    initEmojiIntegration();
 }
 
 /**
@@ -61,6 +64,51 @@ function addEditMethods() {
     vueApp.cancelEditDialog = function (index) {
         // 取消编辑，恢复原内容
         this.$set(this.dialogs[index], 'isEditing', false);
+    };
+
+    // 添加通过base64数据直接添加图片对话的方法
+    vueApp.addImageDialogFromData = function (imageData) {
+        var selectedUser = this.getSelectedUser();
+        if (!selectedUser) {
+            alert('请先选择用户');
+            return false;
+        }
+
+        // 直接使用base64数据创建图片对话
+        var imageDialog = {
+            id: "dialog-" + (new Date).valueOf(),
+            type: "image",
+            image: imageData,
+            is_me: selectedUser.is_me,
+            user_id: selectedUser.id
+        };
+
+        this.addDialog(imageDialog);
+        console.log('已添加自定义emoji图片消息');
+    };
+
+    // 添加emoji内容转换方法
+    vueApp.convertEmojiContent = function (content) {
+        if (!content) return '';
+
+        // 先进行HTML转义处理，防止XSS攻击
+        const escapeHtml = function (unsafe) {
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        };
+
+        const escapedContent = escapeHtml(content);
+
+        // 然后转换emoji标记
+        if (window.EmojiSelector && window.EmojiSelector.convertToImages) {
+            return window.EmojiSelector.convertToImages(escapedContent);
+        }
+
+        return escapedContent;
     };
 }
 
@@ -196,4 +244,55 @@ function initSortable() {
     });
 
     console.log('排序功能初始化完成');
+}
+
+/**
+ * 初始化emoji集成功能
+ */
+function initEmojiIntegration() {
+    console.log('开始初始化emoji集成功能');
+
+    // 等待emoji选择器模块加载完成
+    const waitForEmojiSelector = setInterval(() => {
+        if (window.EmojiSelector) {
+            clearInterval(waitForEmojiSelector);
+            setupEmojiButtons();
+        }
+    }, 200);
+}
+
+/**
+ * 设置emoji按钮事件
+ */
+function setupEmojiButtons() {
+    // 主输入框emoji按钮
+    const mainEmojiBtn = document.querySelector('.main-emoji-btn');
+    const mainTextarea = document.getElementById('main-dialog-textarea');
+
+    if (mainEmojiBtn && mainTextarea) {
+        mainEmojiBtn.addEventListener('click', function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+            window.EmojiSelector.show(this, mainTextarea);
+        });
+        console.log('主输入框emoji按钮已绑定');
+    }
+
+    // 为编辑模式的emoji按钮设置委托事件
+    document.addEventListener('click', function (event) {
+        if (event.target.classList.contains('edit-emoji-btn')) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            const index = event.target.getAttribute('data-index');
+            const editTextarea = document.getElementById('edit-textarea-' + index);
+
+            if (editTextarea) {
+                window.EmojiSelector.show(event.target, editTextarea);
+                console.log('编辑模式emoji按钮被点击，索引:', index);
+            }
+        }
+    });
+
+    console.log('Emoji按钮事件绑定完成');
 } 

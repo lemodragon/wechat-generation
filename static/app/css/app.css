@@ -2702,3 +2702,303 @@ a.a-phone-set-bg span {
     transform: translateY(-50%);
     z-index: 10;
 }
+
+/* ===== EMOJI选择器样式 ===== */
+
+/* 输入框与emoji按钮容器 */
+.input-with-emoji {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+}
+
+.input-with-emoji .form-control {
+    flex: 1;
+    margin-right: 10px;
+}
+
+/* 编辑模式的textarea容器 */
+.edit-textarea-container {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 10px;
+    gap: 8px;
+}
+
+.edit-textarea-container .edit-message-textarea {
+    flex: 1;
+    margin-bottom: 0;
+    min-height: 80px;
+}
+
+/* Emoji触发按钮通用样式 */
+.emoji-trigger-btn {
+    width: 40px;
+    height: 40px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background: #f8f9fa;
+    color: #333;
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.emoji-trigger-btn:hover {
+    background: #e9ecef;
+    border-color: #adb5bd;
+    transform: translateY(-1px);
+}
+
+.emoji-trigger-btn.emoji-btn-active {
+    background: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+/* 主输入框的emoji按钮 */
+.main-emoji-btn {
+    align-self: flex-end;
+    height: 100px;
+    /* 匹配textarea高度 */
+}
+
+/* 编辑模式的emoji按钮 */
+.edit-emoji-btn {
+    height: 45px;
+    width: 45px;
+    font-size: 20px;
+    margin-top: 2px;
+}
+
+/* Emoji选择面板 */
+.emoji-selector-panel {
+    position: fixed;
+    width: 400px;
+    max-height: 350px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    z-index: 10000;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+.emoji-selector-panel.emoji-panel-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* 面板标题栏 */
+.emoji-panel-title {
+    padding: 12px 15px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    border-radius: 7px 7px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 500;
+    color: #495057;
+}
+
+.emoji-panel-close {
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: #6c757d;
+    cursor: pointer;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.emoji-panel-close:hover {
+    background: #e9ecef;
+    color: #495057;
+}
+
+/* Emoji网格容器 */
+.emoji-grid {
+    padding: 15px;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 8px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.emoji-grid::-webkit-scrollbar {
+    width: 6px;
+}
+
+.emoji-grid::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.emoji-grid::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+.emoji-grid::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Emoji项目 */
+.emoji-item {
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: #f8f9fa;
+    border: 1px solid transparent;
+}
+
+.emoji-item:hover {
+    background: #e3f2fd;
+    border-color: #2196f3;
+    transform: scale(1.1);
+}
+
+.emoji-item img {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+}
+
+/* 自定义emoji区域 */
+.emoji-custom-section {
+    border-top: 1px solid #e3f2fd;
+    padding: 20px 15px;
+    background: linear-gradient(to bottom, #ffffff 0%, #f8f9ff 100%);
+    border-radius: 0 0 8px 8px;
+}
+
+.emoji-section-title {
+    font-size: 13px;
+    color: #495057;
+    font-weight: 600;
+    margin-bottom: 15px;
+    text-align: center;
+    letter-spacing: 0.5px;
+}
+
+.emoji-upload-area {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.emoji-upload-btn {
+    width: 120px;
+    height: 80px;
+    border: 2px dashed #007bff;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #007bff;
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.emoji-upload-btn:hover {
+    border-color: #0056b3;
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    color: #0056b3;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.2);
+}
+
+.emoji-upload-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.15);
+}
+
+.emoji-upload-btn span {
+    font-size: 28px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    text-shadow: 0 1px 2px rgba(0, 123, 255, 0.1);
+}
+
+.emoji-upload-btn div {
+    font-size: 11px;
+    line-height: 1.2;
+    font-weight: 500;
+    text-align: center;
+    opacity: 0.8;
+}
+
+/* 内联emoji样式 */
+.inline-emoji {
+    display: inline-block;
+    width: 60px;
+    height: 60px;
+    vertical-align: middle;
+    margin: 0 6px;
+}
+
+/* 响应式适配 */
+@media screen and (max-width: 480px) {
+    .emoji-selector-panel {
+        width: 95vw;
+        max-width: 350px;
+        left: 50% !important;
+        transform: translateX(-50%);
+    }
+
+    .emoji-selector-panel.emoji-panel-visible {
+        transform: translateX(-50%);
+    }
+
+    .emoji-grid {
+        grid-template-columns: repeat(6, 1fr);
+        gap: 6px;
+    }
+
+    .emoji-item {
+        width: 30px;
+        height: 30px;
+    }
+
+    .emoji-item img {
+        width: 24px;
+        height: 24px;
+    }
+
+    .main-emoji-btn {
+        width: 35px;
+        height: 80px;
+    }
+}
+
+@media screen and (max-width: 320px) {
+    .emoji-grid {
+        grid-template-columns: repeat(5, 1fr);
+    }
+}

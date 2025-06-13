@@ -60,6 +60,8 @@
     <script src="./static/app/js/message-editor.js"></script>
     <!-- 引入拉黑功能 -->
     <script src="./static/app/js/block-message.js"></script>
+    <!-- 引入emoji选择器功能 -->
+    <script src="./static/app/js/emoji-selector.js"></script>
 
     <!-- 缓存管理样式 -->
     <style>
@@ -404,8 +406,12 @@
                                 <div class="dialog-user-content-title">发送人：{{getSender()}}</div>
                                 <div class="dialog-user-content">
                                     <div class="dialog-user-content-panel">
-                                        <textarea v-model="setting.dialog_content"
-                                            class="edit-dialog-text form-control"></textarea>
+                                        <div class="input-with-emoji">
+                                            <textarea v-model="setting.dialog_content" id="main-dialog-textarea"
+                                                class="edit-dialog-text form-control"></textarea>
+                                            <button type="button" class="emoji-trigger-btn main-emoji-btn"
+                                                title="选择表情">😊</button>
+                                        </div>
                                     </div>
                                     <div class="view-setting view-setting2">
                                         <div class="view-set-item">
@@ -573,13 +579,18 @@
 
                                             <template v-if="dialog.type == 'text'">
                                                 <i v-if="dialog.is_blocked" class="wechat-block-icon"></i>
-                                                <div class="wechat-dialog-text" v-if="!dialog.isEditing">
-                                                    {{dialog.content}}
+                                                <div class="wechat-dialog-text" v-if="!dialog.isEditing"
+                                                    v-html="convertEmojiContent(dialog.content)">
                                                 </div>
                                                 <div class="wechat-dialog-text wechat-dialog-editing"
                                                     v-if="dialog.isEditing">
-                                                    <textarea v-model="dialog.editContent"
-                                                        class="edit-message-textarea"></textarea>
+                                                    <div class="edit-textarea-container">
+                                                        <textarea v-model="dialog.editContent"
+                                                            :id="'edit-textarea-' + index"
+                                                            class="edit-message-textarea"></textarea>
+                                                        <button type="button" class="emoji-trigger-btn edit-emoji-btn"
+                                                            :data-index="index" title="选择表情">😊</button>
+                                                    </div>
                                                     <div class="edit-message-actions">
                                                         <button @click="saveEditedDialog(index)"
                                                             class="btn-edit-save">保存</button>
