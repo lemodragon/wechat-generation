@@ -101,18 +101,53 @@ body {
 }
 
 /* 为可能缺失资源的元素提供优雅降级 */
-img {
+/* 排除emoji图片，只对确实加载失败的图片应用样式 */
+img:not(.inline-emoji):not([src*="data:"]):not([src*="emoji"]) {
     /* 当图片加载失败时的样式 */
-    background-color: #f8f9fa;
-    border: 1px dashed #dee2e6;
+    background-color: transparent;
+    border: none;
 }
 
-img:after {
+/* 仅在图片真正加载失败时显示替代内容 */
+img:not(.inline-emoji):not([src*="data:"]):not([src*="emoji"]):after {
     /* 图片加载失败时显示的内容 */
-    content: attr(alt);
-    display: block;
-    padding: 10px;
-    text-align: center;
-    color: #6c757d;
-    font-size: 12px;
+    content: "";
+    display: none;
+}
+
+/* 确保emoji图片不受任何意外样式影响 */
+.inline-emoji,
+img[src*="emoji"],
+img[src*="data:image"] {
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* 确保emoji图片的after和before伪元素不显示内容 */
+.inline-emoji:after,
+.inline-emoji:before,
+img[src*="emoji"]:after,
+img[src*="emoji"]:before,
+img[src*="data:image"]:after,
+img[src*="data:image"]:before {
+    content: none !important;
+    display: none !important;
+}
+
+/* 修复可能出现的白线问题 */
+.phone,
+.phone-content,
+.phone-body,
+.wechat-content {
+    border: none !important;
+    outline: none !important;
+}
+
+/* 确保克隆的预览元素不会有意外边框 */
+.iPhoneX img,
+.phone img {
+    border: none !important;
+    outline: none !important;
 }
